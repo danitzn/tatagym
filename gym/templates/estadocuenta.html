@@ -1,0 +1,29 @@
+<!-- estado_cuenta.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Estado de cuenta</title>
+</head>
+<body>
+    <h1>Estado de cuenta de {{ persona.nombre }}</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Plan</th>
+                <th>Fecha de inicio</th>
+                <th>Fecha de finalización</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for plan in plan_persona %}
+            <tr>
+                <td>{{ plan.plan }}</td>
+                <td>{{ plan.fecha_inicio }}</td>
+                <td>{{ plan.fecha_finalizacion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

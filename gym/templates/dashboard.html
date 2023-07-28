@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+
+<body>
+    <h1>TataTraining</h1>
+    <!-- Agrega el enlace al archivo jQuery -->
+ 
+
+    <div class="dashboard-container">
+        <div class="dashboard-item">
+            <h2 class="dashboard-item-title">Listado de personas registradas:</h2>
+            <p>Bienvenidos a los ultimos inscriptos !!!</p>
+            <ul>
+                {% for persona in personas %}
+                {% if forloop.counter <= 5 %} 
+                <li>
+                    <span><a href="{% url 'personas' persona.id %}">{{ persona.nombre }} {{ persona.apellido }}</a></span>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="dashboard-item">
+            <a href="{% url 'altapersona' %}" class="dashboard-item-link">Alta de persona</a>
+        </div>
+
+        <div class="marcacion-container">
+            <!-- Actualiza la URL en el atributo 'action' para realizar la petición AJAX -->
+            <form method="POST" action="{% url 'registrar_marcacion' %}">
+                {% csrf_token %}
+                <label for="cedula">Ingrese su número de cédula:</label>
+                <input type="text" id="cedula" name="cedula" required>
+                <button type="submit">Marcar</button>
+            </form>
+        </div>
+
+        <div class="dashboard-item">
+            <h2 class="dashboard-item-title">Últimas marcaciones:</h2>
+            <ul class="marcaciones">
+                {% for marcacion in ultimas_marcaciones %}
+                    <li>
+                        {{ marcacion.cedula }}- {{ marcacion.fecha }} - {{ marcacion.tipo }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+<!--estilos css aqui -->
+<!--css -->
+<style>
+    body {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+    .dashboard-background {
+    background-image: url("static/images/tata.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-color: rgba(255, 255, 255, 0.5); /* Valor de transparencia, ajusta el último valor (0.8) según tus necesidades */
+    }   
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: blue;
+    }
+
+    h2 {
+        color: blue;
+        font-size: 24px;
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .dashboard-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-item {
+        margin-bottom: 20px;
+    }
+
+    .dashboard-item-title {
+        margin-bottom: 10px;
+    }
+
+    .dashboard-item-link {
+        display: inline-block;
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .dashboard-item-link:hover {
+        background-color: darkblue;
+    }
+    
+    .marcacion-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .marcacion-container label {
+        display: block;
+        margin-bottom: 10px;
+        color: blue;
+    }
+
+    .marcacion-container input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .marcacion-container button[type="submit"] {
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .marcacion-container button[type="submit"]:hover {
+        background-color: darkblue;
+    }
+ 
+</style>
+
