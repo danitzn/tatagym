@@ -88,34 +88,31 @@ class ListarMarcacionesView(ListView):
             print(marcacion)
         return queryset
 def registrar_marcacion(request):
-    cedula = request.POST.get('cedula')
-    try:
-        persona = Persona.objects.get(cedula=cedula)
+    form = RegistromarcacionForm(request.POST)
+    if form.is_valid():
+        persona = Persona.objects.get(cedula=form.cleaned_data['cedula'])
         plan_persona = PlanPersona.objects.get(persona=persona)
-
         if plan_persona.estado == 'activo':
-            marcaciones = Marcacion.objects.filter(persona_plan__persona=persona, fecha__date=timezone.now().date())
-
-            if marcaciones.exists():
-                ultimo_tipo_marcacion = marcaciones.latest('fecha').tipo
-                tipo_marcacion = 'entrada' if ultimo_tipo_marcacion == 'salida' else 'salida'
-            else:
-                tipo_marcacion = 'entrada'
-
-            marcacion = Marcacion()
-            marcacion.fecha = timezone.now()
-            marcacion.cedula = cedula
-            marcacion.tipo = tipo_marcacion
+            marcacion = form.save(commit=False)
+            marcacion.persona = persona
             marcacion.plan_persona = plan_persona
+            marcacion.fecha = timezone.now()
+            marcacion.tipo = 'entrada'
             marcacion.save()
-
-            mensaje = 'Marcación exitosa - Tipo: {}'.format(tipo_marcacion)
+            return redirect('dashboard')
         else:
-            mensaje = 'Plan inactivo - No se puede realizar la marcación'
-    except Persona.DoesNotExist:
-        mensaje = 'No está registrado en el sistema'
+            # Si ya tuvo entrada, debe marcar salida; de lo contrario, marcar entrada
+            marcacion_anterior = RegistromarcacionForm.objects.filter(persona=persona).order_by('-fecha').first()
+            tipo_marcacion = 'salida' if marcacion_anterior.tipo == 'entrada' else 'entrada'
 
-    return render(request, 'marcacion.html', {'mensaje': mensaje})
+            marcacion = form.save(commit=False)
+            marcacion.persona = persona
+            marcacion.plan_persona = plan_persona
+            marcacion.fecha = timezone.now()
+            marcacion.tipo = tipo_marcacion
+            marcacion.save()
+            return redirect('marcacion')
+    return render(request, 'marcacion.html', {'form': form})
 
 
 def estado_cuenta (request):
