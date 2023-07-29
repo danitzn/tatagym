@@ -87,23 +87,33 @@ class ListarMarcacionesView(ListView):
         for marcacion in queryset:
             print(marcacion)
         return queryset
+
+
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from .forms import RegistromarcacionForm
+from .models import Persona, PlanPersona, Marcacion
+
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from .forms import RegistromarcacionForm
+from .models import Persona, PlanPersona, Marcacion
+
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from .forms import RegistromarcacionForm
+from .models import Persona, PlanPersona, Marcacion
+
 def registrar_marcacion(request):
     form = RegistromarcacionForm(request.POST)
+
     if form.is_valid():
-        persona = Persona.objects.get(cedula=form.cleaned_data['cedula'])
-        plan_persona = PlanPersona.objects.get(persona=persona)
-        if plan_persona.estado == 'activo':
-            marcacion = form.save(commit=False)
-            marcacion.persona = persona
-            marcacion.plan_persona = plan_persona
-            marcacion.fecha = timezone.now()
-            marcacion.tipo = 'entrada'
-            marcacion.save()
-            return redirect('dashboard')
-        else:
-            # Si ya tuvo entrada, debe marcar salida; de lo contrario, marcar entrada
-            marcacion_anterior = RegistromarcacionForm.objects.filter(persona=persona).order_by('-fecha').first()
-            tipo_marcacion = 'salida' if marcacion_anterior.tipo == 'entrada' else 'entrada'
+        cedula = form.cleaned_data['cedula']
+        try:
+            persona = Persona.objects.get(cedula=cedula)
+            plan_persona = PlanPersona.objects.get(persona=persona, estado='activo')
+            marcaciones_hoy = Marcacion.objects.filter(plan_persona=plan_persona, fecha__date=timezone.now().date())
+            tipo_marcacion = 'entrada' if not marcaciones_hoy.exists() or marcaciones_hoy.count() % 2 == 0 else 'salida'
 
             marcacion = form.save(commit=False)
             marcacion.persona = persona
@@ -111,8 +121,16 @@ def registrar_marcacion(request):
             marcacion.fecha = timezone.now()
             marcacion.tipo = tipo_marcacion
             marcacion.save()
-            return redirect('marcacion')
-    return render(request, 'marcacion.html', {'form': form})
+
+            mensaje = f'Marcación exitosa - Tipo: {tipo_marcacion}'
+        except Persona.DoesNotExist:
+            mensaje = 'No está registrado en el sistema'
+        except PlanPersona.DoesNotExist:
+            mensaje = 'Plan inactivo - No se puede realizar la marcación'
+    else:
+        mensaje = 'Error en el formulario'
+
+    return render(request, 'marcacion.html', {'mensaje': mensaje})
 
 
 def estado_cuenta (request):

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from gym.views import  ListarPersonasView, ListarPlanesView, dashboard, registrar_marcacion
 from gym.views import registro_personas, estado_cuenta,mostrar_personas, ListarPersonasView, ListarPlanesView, ListarMarcacionesView
+from gym.views import dashboard, registrar_marcacion, registro_personas, estado_cuenta, mostrar_personas
 
 urlpatterns = [
     path('', dashboard, name='dashboard'),
