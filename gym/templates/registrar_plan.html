@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registrar Plan</title>
+</head>
+<body>
+  <div class="form-container">
+    <form method="POST">
+      {% csrf_token %}
+      {{ planpersona_form.as_p }}
+      <button type="submit">Registrar Plan</button>
+    </form>
+  </div>
+</body>
+</html>
+  {% block css%}
+    
+<style>
+    .form-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container label {
+        display: block;
+        margin-bottom: 10px;
+        color: blue;
+    }
+
+    .form-container select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .form-container button[type="submit"] {
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .form-container button[type="submit"]:hover {
+        background-color: darkblue;
+    }
+</style>
+{% endblock %}

@@ -13,7 +13,7 @@
     <div class="dashboard-container">
         <div class="dashboard-item">
             <h2 class="dashboard-item-title">Listado de personas registradas:</h2>
-            <p>Bienvenidos a los ultimos inscriptos !!!</p>
+            <!--<p>Bienvenidos a los ultimos inscriptos !!!</p>
             <ul>
                 {% for persona in personas %}
                 {% if forloop.counter <= 5 %} 
@@ -22,11 +22,15 @@
                 </li>
                 {% endif %}
                 {% endfor %}
-            </ul>
+            </ul>-->
         </div>
 
         <div class="dashboard-item">
-            <a href="{% url 'altapersona' %}" class="dashboard-item-link">Alta de persona</a>
+            <a href="{% url 'altapersona' %}" class="dashboard-item-link">Registro de persona</a>
+        </div>
+
+        <div class="dashboard-item">
+            <a href="{% url 'registrar_plan' %}" class="dashboard-item-link">Registrar Plan</a>
         </div>
 
         <div class="marcacion-container">

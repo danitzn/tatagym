@@ -1,12 +1,16 @@
 # Create your views here.
-
+from datetime import timedelta
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse_lazy
 from django.views import View
-from .forms import PersonaForm, RegistromarcacionForm
-from .models import Marcacion, Persona, PlanPersona, dashboard
+from .forms import PersonaForm, RegistromarcacionForm, PlanPersonaForm
+from .models import Marcacion, Persona, PlanPersona,Estados, dashboard
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView , DetailView
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
 
 
 #forms persona
@@ -60,23 +64,66 @@ def contar_personas(request):
     personas = Persona.objects.all()
     return render(request, 'dashboard.html', {'personas': personas})
 
-#------------------planes------------------#
+#------------------marcaciones------------------#
+class MarcacionView(View):
+    template_name = 'marcacion.html'
 
-class ListarPlanesView(DetailView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request):  # Cambiar el nombre del método a 'post'
+        form = RegistromarcacionForm(request.POST)
+
+        if form.is_valid():
+            cedula = form.cleaned_data['cedula']
+            try:
+                persona = Persona.objects.get(cedula=cedula)
+                plan_persona = PlanPersona.objects.get(persona=persona, estado='activo')
+                marcaciones_hoy = Marcacion.objects.filter(plan_persona=plan_persona, fecha__date=timezone.now().date())
+                tipo_marcacion = 'entrada' if not marcaciones_hoy.exists() or marcaciones_hoy.count() % 2 == 0 else 'salida'
+                marcacion = form.save(commit=False)
+                marcacion.persona = persona
+                marcacion.plan_persona = plan_persona
+                marcacion.fecha = timezone.now()
+                marcacion.tipo = tipo_marcacion
+                marcacion.save()
+                mensaje = f'Marcación exitosa - Tipo: {tipo_marcacion}'
+            except Persona.DoesNotExist:
+                mensaje = 'No está registrado en el sistema'
+            except PlanPersona.DoesNotExist:
+                mensaje = 'Plan inactivo o sin registro - No se puede realizar la marcación'
+            #si la persona tiene un plan con fecha de vencimiento menor a la fecha de hoy que le salga un mensaje de regularizar estado de cuenta
+            if plan_persona.fecha_fin < timezone.now().date():
+                mensaje = 'Regularizar estado de Plan'
+
+        else:
+            mensaje = 'Error en el formulario'
+
+        return render(request, 'marcacion.html', {'mensaje': mensaje})
+
+#------------------planes------------------#
+class CreatePlanPersonaView(View):
+    template_name = 'registrar_plan.html'
+
+    def get(self, request):
+        planpersona_form = PlanPersonaForm()
+        return render(request, self.template_name, {'planpersona_form': planpersona_form})
+
+    def post(self, request):
+        planpersona_form = PlanPersonaForm(request.POST)
+        if planpersona_form.is_valid():
+            planpersona_form.save()
+            return redirect('dashboard')  # Asegúrate de que 'dashboard' sea la URL correcta a la que deseas redirigir
+        else:
+            # Si el formulario no es válido, puedes manejarlo de alguna manera, como mostrar un mensaje de error
+            error_message = "Hubo un error en el formulario, por favor verifica los datos ingresados."
+            return render(request, self.template_name, {'planpersona_form': planpersona_form, 'error_message': error_message})
+    
+class ListarPlanesView(ListView):
     model = PlanPersona
     template_name = 'estadocuenta.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['personas'] = Persona.objects.all()
-        return context
-##marcaciones
-
-
-class ListarMarcacionesView(ListView):
-    model = Marcacion
-    template_name = 'marcaciones.html'
-    context_object_name = 'marcaciones'
+    context_object_name = 'planes'
     ordering = ['-fecha']
     paginate_by = 5
 
@@ -84,57 +131,22 @@ class ListarMarcacionesView(ListView):
         queryset = super().get_queryset().all()
 
         # Imprimir los datos de las personas
-        for marcacion in queryset:
-            print(marcacion)
+        for plan in queryset:
+            print(plan)
         return queryset
 
+class UpdatePlanView(View):
+    template_name = 'modificarplan.html'
 
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from .forms import RegistromarcacionForm
-from .models import Persona, PlanPersona, Marcacion
-
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from .forms import RegistromarcacionForm
-from .models import Persona, PlanPersona, Marcacion
-
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from .forms import RegistromarcacionForm
-from .models import Persona, PlanPersona, Marcacion
-
-def registrar_marcacion(request):
-    form = RegistromarcacionForm(request.POST)
-
-    if form.is_valid():
-        cedula = form.cleaned_data['cedula']
-        try:
-            persona = Persona.objects.get(cedula=cedula)
-            plan_persona = PlanPersona.objects.get(persona=persona, estado='activo')
-            marcaciones_hoy = Marcacion.objects.filter(plan_persona=plan_persona, fecha__date=timezone.now().date())
-            tipo_marcacion = 'entrada' if not marcaciones_hoy.exists() or marcaciones_hoy.count() % 2 == 0 else 'salida'
-
-            marcacion = form.save(commit=False)
-            marcacion.persona = persona
-            marcacion.plan_persona = plan_persona
-            marcacion.fecha = timezone.now()
-            marcacion.tipo = tipo_marcacion
-            marcacion.save()
-
-            mensaje = f'Marcación exitosa - Tipo: {tipo_marcacion}'
-        except Persona.DoesNotExist:
-            mensaje = 'No está registrado en el sistema'
-        except PlanPersona.DoesNotExist:
-            mensaje = 'Plan inactivo - No se puede realizar la marcación'
-    else:
-        mensaje = 'Error en el formulario'
-
-    return render(request, 'marcacion.html', {'mensaje': mensaje})
-
-
-def estado_cuenta (request):
-    return render(request, 'estadocuenta.html')
-
-def cargar_pago(request):
-    return render(request, 'cargarpago.html')
+    def get(self, request, pk):
+        plan = get_object_or_404(PlanPersona, pk=pk)
+        form = PlanPersonaForm(instance=plan)
+        return render(request, self.template_name, {'PlanPersonaForm': form})
+    
+    def post(self, request, pk):
+        plan = get_object_or_404(PlanPersona, pk=pk)
+        form = PlanPersonaForm(request.POST, instance=plan)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')  # Cambia 'altapersona' por 'dashboard' si esa es la vista a la que deseas redirigir después de guardar los datos
+        return render(request, self.template_name, {'form': form})
