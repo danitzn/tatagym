@@ -11,10 +11,11 @@
       <button type="submit">Registrar Plan</button>
     </form>
   </div>
+
+  <a class="usuario-link" href="{% url 'dashboard' %}">Volver</a>
 </body>
-</html>
-  {% block css%}
-    
+
+{% block css %}
 <style>
     .form-container {
         max-width: 400px;
@@ -53,5 +54,24 @@
     .form-container button[type="submit"]:hover {
         background-color: darkblue;
     }
+
+    /* Estilos para el botón "Volver" */
+    .usuario-link {
+        display: inline-block;
+        margin-top: 50px;
+        margin-left: 650px;
+        padding: 10px 20px;
+        background-color: blue;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 18px;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+    .usuario-link:hover {
+        background-color: darkblue;
+    }
 </style>
 {% endblock %}
+</html>

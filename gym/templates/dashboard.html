@@ -30,17 +30,13 @@
         </div>
 
         <div class="dashboard-item">
-            <a href="{% url 'registrar_plan' %}" class="dashboard-item-link">Registrar Plan</a>
+            <a href="{% url 'registrar_plan' %}"    class="dashboard-item-link">Registrar Plan</a>
         </div>
-
-        <div class="marcacion-container">
-            <!-- Actualiza la URL en el atributo 'action' para realizar la petición AJAX -->
-            <form method="POST" action="{% url 'registrar_marcacion' %}">
-                {% csrf_token %}
-                <label for="cedula">Ingrese su número de cédula:</label>
-                <input type="text" id="cedula" name="cedula" required>
-                <button type="submit">Marcar</button>
-            </form>
+        <div class="dashboard-item">
+            <a href="{% url 'estadocuenta' %}"      class="dashboard-item-link">Estado Cuenta</a>
+        </div>
+        <div class="dashboard-item">
+            <a href="{% url 'registrar_marcacion' %}"         class="dashboard-item-link">Marcacion</a>
         </div>
 
         <div class="dashboard-item">
@@ -62,17 +58,18 @@
 <!--estilos css aqui -->
 <!--css -->
 <style>
+
     body {
         padding: 20px;
         font-family: Arial, sans-serif;
     }
     .dashboard-background {
-    background-image: url("static/images/tata.png");
+    background-image: url("{% static 'images/tata.png' %}");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
     background-attachment: fixed;
-    background-color: rgba(255, 255, 255, 0.5); /* Valor de transparencia, ajusta el último valor (0.8) según tus necesidades */
+    background-color: rgba(255, 255, 255, 0.5);
     }   
     h1 {
         text-align: center;

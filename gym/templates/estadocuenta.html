@@ -1,29 +1,177 @@
-<!-- estado_cuenta.html -->
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Estado de cuenta</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Cuenta</title>
 </head>
 <body>
-    <h1>Estado de cuenta de {{ persona.nombre }}</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Plan</th>
-                <th>Fecha de inicio</th>
-                <th>Fecha de finalización</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for plan in plan_persona %}
-            <tr>
-                <td>{{ plan.plan }}</td>
-                <td>{{ plan.fecha_inicio }}</td>
-                <td>{{ plan.fecha_finalizacion }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="container">
+        <h1>Estado de Cuenta</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Persona</th>
+                    <th>Plan</th>
+                    <th>Fecha de Inicio</th>
+                    <th>Fecha de Fin</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plan in planes %}
+                <tr>
+                    <td>{{ plan.persona.nombre }}</td>
+                    <td>{{ plan.plan.nombre }}</td>
+                    <td>{{ plan.fecha_inicio }}</td>
+                    <td>{{ plan.fecha_fin }}</td>
+                    <td class="{% if plan.estado == 'inactivo' %}estado-inactivo{% endif %}">
+                        {{ plan.estado }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <form action = "{% url 'actualizar_cuenta' %}" method="post">
+            {% csrf_token %}
+            <button type = "submit" >
+                Actualizar Cuenta
+            </button>
+        </form>
+    </form>
+    <a class="usuario-link" href="{% url 'dashboard' %}">Volver</a>
+
+    </div>
 </body>
 </html>
+<style>
+    body {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: blue;
+    }
+    
+
+    h2 {
+        color: blue;
+        font-size: 24px;
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .dashboard-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-item {
+        margin-bottom: 20px;
+    }
+
+    .dashboard-item-title {
+        margin-bottom: 10px;
+    }
+
+    .dashboard-item-link {
+        display: inline-block;
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .dashboard-item-link:hover {
+        background-color: darkblue;
+    }
+
+    .marcacion-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .marcacion-container label {
+        display: block;
+        margin-bottom: 10px;
+        color: blue;
+    }
+
+    .marcacion-container input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .marcacion-container button[type="submit"] {
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    /*estilo para boton actualizr cuenta*/
+    .marcacion-container button[type="submit"] {
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .marcacion-container button[type="submit"]:hover {
+        background-color: darkblue;
+    }
+
+    /* Estilo para celdas con estado "inactivo" */
+    .estado-inactivo {
+        background-color: orange;
+    }
+    /*estilo para el boton volver*/
+    .usuario-link {
+        display: inline-block;
+        margin-top: 50px;
+        margin-left: 5px;
+        padding: 10px 20px;
+        background-color: blue;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 18px;
+        transition: background-color 0.3s ease-in-out;
+    }
+    
+</style>
